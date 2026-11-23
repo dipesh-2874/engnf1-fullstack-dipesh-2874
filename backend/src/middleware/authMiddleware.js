@@ -52,7 +52,7 @@ export const protect = async (req, res, next) => {
     // Attach verified user to request
     req.user = user;
 
-    next();
+    return next();
   } catch (error) {
     if (
       error.name === "JsonWebTokenError" ||
@@ -67,7 +67,7 @@ export const protect = async (req, res, next) => {
       });
     }
 
-    next(error);
+    return next(error);
   }
 };
 
@@ -92,6 +92,6 @@ export const authorizeRoles = (...allowedRoles) => {
       });
     }
 
-    next();
+    return next();
   };
 };

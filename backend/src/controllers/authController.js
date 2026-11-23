@@ -1,15 +1,24 @@
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
 const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).{8,64}$/;
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 const sendError = (res, status, code, message) => {
   return res.status(status).json({
     error: { code, message },
   });
 };
+
+const formatUser = (user) => ({
+  id: user._id.toString(),
+  name: user.name,
+  email: user.email,
+  role: user.role,
+  createdAt: user.createdAt,
+  updatedAt: user.updatedAt,
+});
 
 // JWT
 const generateToken = (userId) => {
@@ -96,7 +105,7 @@ export const registerUser = async (req, res) => {
     });
 
     return res.status(201).json({
-      user: user.toJSON(),
+      user: formatUser(user),
     });
     
   } catch (error) {
@@ -142,7 +151,7 @@ export const loginUser = async (req, res) => {
     const user = await User.findOne({
       email: normalizedEmail,
     }).select("+passwordHash");
-    console.log(user);
+
     if (!user) {
       return sendError(
         res, 401, "UNAUTHENTICATED",
@@ -168,7 +177,7 @@ export const loginUser = async (req, res) => {
 
     return res.status(200).json({
       token,
-      user: user.toJSON(),
+      user: formatUser(user),
     });
   } catch (error) {
     console.error("Login error:", error);
@@ -183,7 +192,7 @@ export const loginUser = async (req, res) => {
 // GET /api/auth/me
 export const getMe = async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId);
+    const user = await User.findById(req.user._id);
 
     if (!user) {
       return sendError(
@@ -193,7 +202,7 @@ export const getMe = async (req, res) => {
     }
 
     return res.status(200).json({
-      user: user.toJSON(),
+      user: formatUser(user),
     });
   } catch (error) {
     console.error("Get user error:", error);

@@ -1,7 +1,7 @@
 
 import mongoose from "mongoose";
-import bcrypt from "bcrypt";
 import dotenv from "dotenv";
+import bcrypt from "bcrypt";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import User from "../models/User.js";
