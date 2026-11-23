@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./config/db.js";
+import authRoutes from "./routes/authRoutes.js";
+import testRoutes from "./routes/testRoutes.js";
 
 dotenv.config({ 
     path: new URL("../../.env", import.meta.url),
@@ -11,6 +13,11 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+app.use("/api/auth", authRoutes);
+console.log("Auth routes mounted successfully!");
+
+app.use("/api/test", testRoutes);
 
 app.get("/", (req, res) => {
     res.json({
@@ -27,5 +34,5 @@ const startServer = async() => {
         console.log(`Server running on http://localhost:${PORT}`);
     });
 };
-
+ 
 startServer(); 
