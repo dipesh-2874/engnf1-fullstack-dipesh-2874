@@ -13,7 +13,7 @@ const bookingSchema = new mongoose.Schema(
             ref: "User",
             required: true,
         },
-        TicketId: {
+        ticketId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Ticket",
             default: null,
@@ -56,7 +56,7 @@ const bookingSchema = new mongoose.Schema(
             default: "PENDING",
         },
 
-        descisionNote: {
+        decisionNote: {
             type: String,
             trim: true,
             minlength: 5,
