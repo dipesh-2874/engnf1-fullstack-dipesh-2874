@@ -5,6 +5,7 @@ import {
     getTickets,
     getTicketById,
     updateTicket,
+    getTicketEvents,
 } from "../controllers/ticketController.js"
 
 import {
@@ -21,5 +22,7 @@ router.get("/", protect, getTickets);
 router.get("/:id", protect, getTicketById);
 
 router.patch("/:id", protect, authorizeRoles("USER", "ADMIN"), updateTicket);
+
+router.get("/:id/events", protect, getTicketEvents);
 
 export default router;

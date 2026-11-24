@@ -46,7 +46,8 @@ ticketEventSchema.index({
 
 const TicketEvent = mongoose.model(
   "TicketEvent",
-  ticketEventSchema
+  ticketEventSchema,
+  "tickets_events"
 );
 
 export default TicketEvent;

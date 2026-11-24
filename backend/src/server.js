@@ -5,6 +5,7 @@ import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import testRoutes from "./routes/testRoutes.js";
 import ticketRoutes from "./routes/ticketRoutes.js";
+import statsRoutes from "./routes/statsRoutes.js";
 
 dotenv.config({ 
     path: new URL("../../.env", import.meta.url),
@@ -19,8 +20,8 @@ app.use("/api/auth", authRoutes);
 console.log("Auth routes mounted successfully!");
 
 app.use("/api/test", testRoutes);
-
 app.use("/api/tickets", ticketRoutes);
+app.use("/api/stats", statsRoutes);
 
 app.get("/", (req, res) => {
     res.json({

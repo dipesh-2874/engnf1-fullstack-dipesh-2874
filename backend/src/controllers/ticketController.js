@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import Ticket from "../models/Ticket.js";
 import TicketEvent from "../models/TicketEvents.js";
 import User from "../models/User.js";
+import { classifyTicket } from "../services/ticketClassifier.js";
 
 const CATEGORIES = [
   "BILLING",
@@ -41,47 +42,21 @@ const sendError = (res, status, code, message) => {
 const escapeRegex = (value) =>
   value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-const classifyTicket = (subject, body) => {
-  const text = `${subject} ${body}`.toLowerCase();
-
-  if (/login|password|sign.?in|account access/.test(text)) {
-    return { category: "LOGIN", priority: "HIGH" };
-  }
-
-  if (/refund|invoice|payment|billing/.test(text)) {
-    return { category: "BILLING", priority: "HIGH" };
-  }
-
-  if (/crash|bug|error|broken/.test(text)) {
-    return { category: "BUG", priority: "HIGH" };
-  }
-
-  if (/delivery|shipment|tracking|package/.test(text)) {
-    return { category: "DELIVERY", priority: "MEDIUM" };
-  }
-
-  return {
-    category: "FEATURE_REQUEST",
-    priority: "MEDIUM",
-  };
-};
-
 //import tickets
 export const importTickets = async (req, res) => {
   try {
-    const { tickets } = req.body ?? {};
+    const tickets = req.body;
 
     if (!Array.isArray(tickets) || tickets.length === 0) {
       return sendError(
-        res,
-        400,
-        "VALIDATION_ERROR",
-        "A non-empty tickets array is required"
+        res, 400, "VALIDATION_ERROR",
+        "A non-empty array of tickets is required"
       );
     }
 
-    let imported = 0;
-    let updated = 0;
+    // Validate entire batch before writing to MongoDB
+    const normalizedTickets = [];
+    const externalIds = new Set();
 
     for (const item of tickets) {
       if (
@@ -91,9 +66,7 @@ export const importTickets = async (req, res) => {
         typeof item.body !== "string"
       ) {
         return sendError(
-          res,
-          400,
-          "VALIDATION_ERROR",
+          res, 400, "VALIDATION_ERROR",
           "Each ticket requires externalId, subject and body"
         );
       }
@@ -110,18 +83,32 @@ export const importTickets = async (req, res) => {
         body.length > 2000
       ) {
         return sendError(
-          res,
-          400,
-          "VALIDATION_ERROR",
-          "Invalid ticket field lengths"
+          res, 400, "VALIDATION_ERROR",
+          "Invalid ticket fields"
         );
       }
+
+      if (externalIds.has(externalId)) {
+        return sendError(
+          res, 400, "VALIDATION_ERROR",
+          "Duplicate externalId in import batch"
+        );
+      }
+
+      externalIds.add(externalId);
+
+      normalizedTickets.push({
+        externalId,
+        subject,
+        body,
+      });
     }
 
-    for (const item of tickets) {
-      const externalId = item.externalId.trim();
-      const subject = item.subject.trim();
-      const body = item.body.trim();
+    let imported = 0;
+    let updated = 0;
+
+    for (const item of normalizedTickets) {
+      const { externalId, subject, body } = item;
 
       const existing = await Ticket.findOne({ externalId });
 
@@ -129,54 +116,69 @@ export const importTickets = async (req, res) => {
         existing.subject = subject;
         existing.body = body;
 
+        // Reclassify only when no human override exists
+        if (!existing.isHumanOverride) {
+          const classification = classifyTicket(subject, body);
+
+          existing.autoCategory = classification.category;
+          existing.category = classification.category;
+          existing.priority = classification.priority;
+        }
+
         await existing.save();
-
         updated++;
-        continue;
+      } else {
+        const classification = classifyTicket(subject, body);
+
+        const ticket = await Ticket.create({
+          externalId,
+          subject,
+          body,
+          autoCategory: classification.category,
+          category: classification.category,
+          priority: classification.priority,
+          status: "OPEN",
+          isHumanOverride: false,
+          isReviewed: false,
+        });
+
+        const actor = req.get("X-Agent")?.trim() || req.user.email;
+        await TicketEvent.insertMany(
+          ["category", "priority", "status"].map((field) => ({
+            ticketId: ticket._id,
+            field,
+            oldValue: null,
+            newValue: String(ticket[field]),
+            actor,
+          }))
+        );
+
+        imported++;
       }
-
-      const classification = classifyTicket(subject, body);
-
-      await Ticket.create({
-        externalId,
-        subject,
-        body,
-        autoCategory: classification.category,
-        category: classification.category,
-        priority: classification.priority,
-        status: "OPEN",
-        isHumanOverride: false,
-        isReviewed: false,
-      });
-
-      imported++;
     }
 
     return res.status(200).json({
-      message: "Ticket import completed",
+      message: "Tickets imported successfully",
       imported,
       updated,
     });
   } catch (error) {
     if (error.code === 11000) {
       return sendError(
-        res,
-        409,
-        "CONFLICT",
-        "Duplicate external ticket identifier"
+        res, 409, "CONFLICT",
+        "Duplicate externalId conflict"
       );
     }
 
     console.error("Ticket import error:", error);
 
     return sendError(
-      res,
-      500,
-      "INTERNAL_ERROR",
+      res, 500, "INTERNAL_ERROR",
       "Failed to import tickets"
     );
   }
 };
+
 
 // get tickets
 export const getTickets = async (req, res) => {
@@ -186,7 +188,7 @@ export const getTickets = async (req, res) => {
       priority,
       status,
       assigneeId,
-      search,
+      q,
     } = req.query;
 
     const page = Number(req.query.page ?? 1);
@@ -245,17 +247,17 @@ export const getTickets = async (req, res) => {
       filter.assigneeId = assigneeId;
     }
 
-    if (search !== undefined) {
+    if (q !== undefined) {
       if (
-        typeof search !== "string" ||
-        search.length > 100
+        typeof q !== "string" ||
+        q.length > 100
       ) {
         return sendError(
-          res, 400, "VALIDATION_ERROR", "Invalid search"
+          res, 400, "VALIDATION_ERROR", "Invalid search query"
         );
       }
 
-      const pattern = escapeRegex(search.trim());
+      const pattern = escapeRegex(q.trim());
 
       if (pattern) {
         filter.$or = [
@@ -427,6 +429,7 @@ export const updateTicket = async (req, res) => {
         }
 
         const events = [];
+        let shouldMarkReviewed = false;
 
         for (const field of fields) {
           const oldValue =
@@ -441,9 +444,21 @@ export const updateTicket = async (req, res) => {
 
           if (oldValue === newValue) continue;
 
+          if (field === "category") {
+            shouldMarkReviewed = true;
+          }
+
+          if (
+            field === "status" &&
+            oldValue === "OPEN" &&
+            newValue !== "OPEN"
+          ) {
+            shouldMarkReviewed = true;
+          }
+
           events.push({
             ticketId: ticket._id,
-            actor: req.user._id.toString(),
+            actor: req.get("X-Agent")?.trim() || req.user.email,
             field,
             oldValue,
             newValue,
@@ -457,7 +472,10 @@ export const updateTicket = async (req, res) => {
         }
 
         if (events.length > 0) {
-          ticket.isReviewed = true;
+          if (shouldMarkReviewed) {
+            ticket.isReviewed = true;
+          }
+
           await ticket.save({ session });
           await TicketEvent.insertMany(events, { session });
         }
@@ -486,6 +504,53 @@ export const updateTicket = async (req, res) => {
       500,
       "INTERNAL_ERROR",
       "Failed to update ticket"
+    );
+  }
+};
+
+
+export const getTicketEvents = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.isValidObjectId(id)) {
+      return sendError(
+        res,
+        400,
+        "VALIDATION_ERROR",
+        "Invalid ticket ID"
+      );
+    }
+
+    const ticket = await Ticket.findById(id);
+
+    if (!ticket) {
+      return sendError(
+        res,
+        404,
+        "NOT_FOUND",
+        "Ticket not found"
+      );
+    }
+
+    const events = await TicketEvent.find({
+      ticketId: ticket._id,
+    })
+      .sort({ createdAt: -1, _id: -1 })
+      .lean();
+
+    return res.status(200).json({
+      ticketId: ticket._id,
+      events,
+    });
+  } catch (error) {
+    console.error("Get ticket events error:", error);
+
+    return sendError(
+      res,
+      500,
+      "INTERNAL_ERROR",
+      "Failed to fetch ticket history"
     );
   }
 };

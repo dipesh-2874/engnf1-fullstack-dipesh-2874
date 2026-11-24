@@ -36,7 +36,6 @@ const ticketSchema = new mongoose.Schema(
         "LOGIN",
         "DELIVERY",
       ],
-      immutable: true,
     },
 
     category: {
