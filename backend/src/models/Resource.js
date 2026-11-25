@@ -34,9 +34,20 @@ const resourceSchema = new mongoose.Schema(
             type: Boolean,
             default: true,
         },
+        bookingVersion: {
+            type: Number,
+            default: 0,
+            select: false,
+        },
     },
     {
         timestamps: true,
+        toJSON: {
+            transform: (_doc, ret) => {
+                delete ret.bookingVersion;
+                return ret;
+            },
+        },
     }
 );
 

@@ -35,9 +35,21 @@ const userSchema = new mongoose.Schema(
       default: "USER",
       required: true,
     },
+
+    bookingVersion: {
+      type: Number,
+      default: 0,
+      select: false,
+    },
   },
   {
     timestamps: true,
+    toJSON: {
+      transform: (_doc, ret) => {
+        delete ret.bookingVersion;
+        return ret;
+      },
+    },
   }
 );
 

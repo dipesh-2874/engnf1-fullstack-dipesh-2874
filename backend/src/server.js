@@ -7,6 +7,7 @@ import testRoutes from "./routes/testRoutes.js";
 import ticketRoutes from "./routes/ticketRoutes.js";
 import statsRoutes from "./routes/statsRoutes.js";
 import resourceRoutes from "./routes/resourceRoutes.js";
+import bookingRoutes from "./routes/bookingRoutes.js";
 
 dotenv.config({ 
     path: new URL("../../.env", import.meta.url),
@@ -24,6 +25,7 @@ app.use("/api/test", testRoutes);
 app.use("/api/tickets", ticketRoutes);
 app.use("/api/stats", statsRoutes);
 app.use("/api/resources", resourceRoutes);
+app.use("/api/bookings", bookingRoutes);
 
 app.get("/", (req, res) => {
     res.json({
