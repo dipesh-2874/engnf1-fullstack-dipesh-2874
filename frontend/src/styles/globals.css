@@ -1,0 +1,20 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-base: #fbfbfb;
+  --color-highlight: #320b01;
+  --color-accent: #004d3a;
+  --color-ink: #121100;
+}
+
+@layer base {
+  body {
+    background: var(--color-base);
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+  }
+}
