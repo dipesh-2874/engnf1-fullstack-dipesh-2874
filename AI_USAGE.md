@@ -30,3 +30,8 @@
 - OpenAI Codex prepared the same-origin production build and Render Blueprint, added the missing demo fixtures, and wrote the root README and solution notes. It ran browser and API checks against isolated Atlas data and measured ticket-list performance before and after adding the queue sort index.
 - Verification example. The sort index was evaluated with the same 5,000 tickets and 30 measured requests per condition. The list query examined fewer documents and median latency improved. The p95 was higher in that run, so the write-up reports the measured trade-off without claiming a uniform speedup.
 - The final re-import review checked that the override is tested at write time. The implementation preserves the original category and keeps a concurrent agent decision intact. The test data and temporary verification databases were removed after the runs.
+
+
+- [chat link 1](https://chatgpt.com/g/g-p-6b02df48e048819192779f86912715a1-engn-f1-full-stack-developer/shared/c/6b03d401-f8c8-83ec-8adc-97cf939f0834?owner_user_id=user-TxT670lqsFcTQHplpSzkl68L)
+- [chat link 2](https://chatgpt.com/g/g-p-6b02df48e048819192779f86912715a1-engn-f1-full-stack-developer/shared/c/6b069823-0024-83ec-b5ea-8bc4426cb190?owner_user_id=user-TxT670lqsFcTQHplpSzkl68L)
+- [chat link 3](https://chatgpt.com/s/cx_6b0726cf815881918426c569182f883c)
