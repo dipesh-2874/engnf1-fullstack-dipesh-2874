@@ -1,0 +1,59 @@
+.admin-resource-list { overflow: clip; }
+.admin-resource-row { display: grid; min-width: 0; align-items: center; gap: 0.75rem; padding: 1rem; }
+.admin-resource-row + .admin-resource-row { border-top: 1px solid #e8e4dd; }
+.admin-resource-name h2 { font-size: 1rem; font-weight: 750; overflow-wrap: anywhere; }
+.admin-resource-name p { margin-top: 0.25rem; }
+.admin-resource-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; color: #59574f; font-size: 0.8125rem; }
+.admin-resource-actions { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.admin-resource-actions .ui-button { padding-inline: 0.625rem; }
+
+.admin-dialog-form fieldset { display: grid; min-width: 0; gap: 0.875rem; }
+.admin-resource-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
+.admin-dialog-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.625rem; }
+.admin-textarea { resize: vertical; }
+
+.admin-booking-filters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 0.75rem; }
+.booking-filters.admin-booking-filters .ui-field { width: 100%; }
+
+.analytics-stats-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
+.analytics-stats-grid .ui-stat-card { min-width: 0; padding: clamp(0.75rem, 2vw, 1.125rem); }
+.analytics-stats-grid .ui-stat-card dd { color: var(--color-accent); }
+.analytics-stats-grid .ui-stat-icon { display: none; }
+.analytics-charts-grid { display: grid; min-width: 0; gap: 0.875rem; }
+.analytics-chart { display: grid; min-width: 0; align-content: start; gap: 0.875rem; padding: clamp(1rem, 2.5vw, 1.375rem); }
+.analytics-chart h2 { font-size: 1.0625rem; font-weight: 750; line-height: 1.35; overflow-wrap: anywhere; }
+.analytics-bars { display: grid; gap: 0.7rem; }
+.analytics-bars li { display: grid; gap: 0.3rem; }
+.analytics-bar-label { display: flex; min-width: 0; justify-content: space-between; gap: 0.75rem; font-size: 0.875rem; }
+.analytics-bar-label span { min-width: 0; color: #59574f; overflow-wrap: anywhere; }
+.analytics-bar-track { height: 0.5rem; overflow: hidden; border-radius: 0.25rem; background: #eeebe6; }
+.analytics-bar-track div { height: 100%; border-radius: inherit; background: var(--color-accent); }
+.analytics-bars--highlight .analytics-bar-track div { background: var(--color-highlight); }
+
+.analytics-booking-summary { display: grid; grid-template-columns: minmax(0, 0.95fr) minmax(0, 1fr); align-items: center; gap: 0.875rem; }
+.analytics-donut { position: relative; width: min(100%, 12rem); height: 11rem; min-width: 0; justify-self: center; }
+.analytics-donut-total { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; pointer-events: none; }
+.analytics-donut-total strong { font-size: clamp(1.25rem, 3vw, 2rem); line-height: 1.1; }
+.analytics-donut-total span { color: #59574f; font-size: 0.6875rem; }
+.analytics-legend { display: grid; min-width: 0; gap: 0.625rem; }
+.analytics-legend li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 0.45rem; color: #59574f; font-size: 0.8125rem; }
+.analytics-legend li span { overflow-wrap: anywhere; }
+.analytics-legend strong { color: var(--color-ink); }
+.analytics-legend-dot { width: 0.625rem; height: 0.625rem; border-radius: 0.1875rem; }
+
+@media (min-width: 650px) {
+  .admin-resource-row { grid-template-columns: minmax(0, 1fr) minmax(8.5rem, 0.55fr) auto; }
+  .analytics-stats-grid .ui-stat-icon { display: grid; }
+}
+
+@media (min-width: 768px) {
+  .analytics-charts-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1100px) {
+  .admin-booking-filters { grid-template-columns: repeat(4, minmax(0, 1fr)) auto; }
+}
+
+@media (min-width: 1150px) {
+  .analytics-stats-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}

@@ -16,6 +16,7 @@ export default function BookingCard({ booking, onOpen }) {
         </div>
         <StatusBadge status={booking.status} label={BOOKING_STATUSES[booking.status]} />
       </div>
+      {booking.requester && <p className="scheduling-muted">Requested by {booking.requester.name}</p>}
       <p className="booking-time"><CalendarDays size={16} aria-hidden="true" /> {formatBookingRange(booking.startTime, booking.endTime)}</p>
       <p className="booking-purpose-summary">{booking.purpose}</p>
       <Button variant="ghost" className="booking-details-action" onClick={() => onOpen(booking)} aria-label={`View booking details for ${name}`}>

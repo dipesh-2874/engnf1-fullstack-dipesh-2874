@@ -20,3 +20,7 @@
 ## Resources and My Bookings
 
 - OpenAI Codex implemented the resource catalog, local availability grid, booking form, and owner bookings and cancellation flows. The controller was checked for UTC half-hour alignment and daily availability coverage. The booking detail dialog uses the full records returned by the owner list endpoint.
+
+## Admin views
+
+- OpenAI Codex implemented resource administration, booking decisions, and analytics charts. The Express controllers were checked to confirm that the admin list returns all bookings and that the admin statistics response supplies booking and resource metrics. The admin dashboard also requests ticket metrics from the agent stats endpoint.

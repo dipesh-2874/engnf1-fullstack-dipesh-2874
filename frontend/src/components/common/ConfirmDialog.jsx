@@ -1,7 +1,7 @@
 import Button from './Button.jsx'
 import Modal from './Modal.jsx'
 
-export default function ConfirmDialog({ open, title, description, confirmLabel = 'Confirm', cancelLabel = 'Cancel', onClose, onConfirm, busy = false, error, destructive = false }) {
+export default function ConfirmDialog({ open, title, description, confirmLabel = 'Confirm', cancelLabel = 'Cancel', onClose, onConfirm, busy = false, error, destructive = false, confirmDisabled = false }) {
   return (
     <Modal
       open={open}
@@ -12,7 +12,7 @@ export default function ConfirmDialog({ open, title, description, confirmLabel =
       footer={(
         <>
           <Button variant="secondary" onClick={onClose} disabled={busy}>{cancelLabel}</Button>
-          <Button variant={destructive ? 'danger' : 'primary'} onClick={onConfirm} disabled={busy}>
+          <Button variant={destructive ? 'danger' : 'primary'} onClick={onConfirm} disabled={busy || confirmDisabled}>
             {busy ? 'Working…' : confirmLabel}
           </Button>
         </>

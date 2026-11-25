@@ -1,6 +1,6 @@
 # TriageSync frontend
 
-Phases 1–7 provide the frontend foundation, authentication, dashboard shell, Triage Queue, Agent Review, Resources, and My Bookings. Admin feature pages are planned below. Folders waiting for their first source file contain a `.gitkeep` marker.
+Phases 1–8 provide the frontend foundation, authentication, dashboard shell, Triage Queue, Agent Review, Resources, My Bookings, and Admin Views.
 
 ## Local setup
 
@@ -19,7 +19,7 @@ npm --prefix frontend run build
 - Tailwind CSS 4 and its Vite plugin handle styling. `src/styles/globals.css` defines `#FBFBFB` (base), `#320B01` (highlight), `#004D3A` (accent), and `#121100` (text).
 - React Router DOM 7 handles navigation, redirects, and route guards. [React Router 7 documentation](https://reactrouter.com/7.18.7/start/declarative/routing)
 - Axios 1 centralizes the API base URL, Bearer headers, and authenticated `401` handling. TanStack React Query 5 loads the authenticated user and provides the cache for later filtered queries and optimistic edits. [TanStack Query optimistic updates](https://tanstack.com/query/v5/docs/framework/react/guides/optimistic-updates)
-- Recharts 3 and its React 19 peer `react-is` will render analytics. Lucide React provides icons and React Hot Toast provides mutation feedback.
+- Recharts 3 and its React 19 peer `react-is` render the booking-status donut. Accessible HTML lists give exact counts alongside the charts. Lucide React provides icons and React Hot Toast provides mutation feedback.
 - React state handles dynamic filters, and native `Date` and `Intl` support UTC conversion and local time display.
 
 ## Target folders and files
@@ -77,7 +77,7 @@ frontend/
 - `/tickets` is available to USER and ADMIN. It shows live statistics including Model Agreement Rate, combined status/category/priority filters, a 300 ms debounced search, and ten tickets per page. Re-Import Feed accepts a JSON file or pasted JSON containing an array of ticket objects or a `{ tickets: [...] }` envelope. The detail panel renders subjects and bodies as text and shows the original and current categories, editable fields, and audit timeline.
 - `/resources` and `/resources/:id` are available to USER and ADMIN. The catalog shows active resources, searches by name, and filters by type and minimum capacity, with ten results per page. The detail grid shows the complete local day. Bookings may span midnight and must use 30-minute UTC-aligned steps, last 30–240 minutes, and start within the next 30 days. A booking needs a purpose and can link a support ticket. A `409` displays the server error and refreshes availability.
 - `/my-bookings` is available to USER and ADMIN. It loads the current user's bookings, filters by status, and opens the booking details from the list response. Future pending and approved bookings prompt for confirmation before cancellation.
-- `/admin/dashboard`, `/admin/resources`, and `/admin/bookings` are ADMIN-only. Show live analytics, create/edit/activate/deactivate resources, and filter, approve, or reject bookings. Require a rejection note.
+- `/admin/dashboard`, `/admin/resources`, and `/admin/bookings` are ADMIN-only. Analytics shows live resource and booking totals, model agreement, tickets by category and priority, booking statuses, and top booked resources. Admins can create, edit, activate, and deactivate resources. The bookings view filters by status, resource, and local dates. Admins can approve or reject future pending bookings. Rejections require a 5–200 character note.
 - `/403` handles authenticated permission failures and `/*` is the catch-all 404. Data views need loading, error with retry, and empty states. Check 375 px, 768 px, and 1280 px widths for horizontal overflow.
 
 ## API modules and integration notes
@@ -87,8 +87,8 @@ The paths below are relative to `/api` and reflect the currently mounted applica
 - `authApi.js` (3) uses `POST /auth/register`, `POST /auth/login`, and `GET /auth/me`.
 - `ticketApi.js` (5) uses `POST /tickets/import`, `GET /tickets`, `GET /tickets/:id`, `PATCH /tickets/:id`, and `GET /tickets/:id/events`. The backend import takes a raw JSON array and returns `imported` and `updated`. Ticket detail and update return `ticket`. Audit events come from the separate events route. To assign a ticket, use Assign to me or enter a known user ID. An empty assignee field unassigns it.
 - `resourceApi.js` (5) uses `GET /resources`, `GET /resources/:id`, `POST /resources`, `PATCH /resources/:id`, and `GET /resources/:id/availability`. The collection expects search as `q`. Availability accepts `date=YYYY-MM-DD` and returns blocking intervals in `availability` for that UTC day. For a local calendar day, fetch each intersecting UTC date, combine duplicate intervals, and check overlaps against local slot bounds. Activation and deactivation use `PATCH` with `isActive`.
-- `bookingApi.js` uses `POST /bookings`, `GET /bookings/my`, and `PATCH /bookings/:id/cancel`. The `/bookings/my` response is `{ bookings }` with full owner records and populated resource summaries. The details dialog reads that response because no standalone detail route is mounted. The admin routes are `GET /bookings`, `PATCH /bookings/:id/approve`, and `PATCH /bookings/:id/reject`.
-- `statsApi.js` (2) uses `GET /stats` and `GET /admin/stats`. The agent response uses `reviewedTickets`, `categoryDistribution`, `priorityDistribution`, and `statusDistribution`. The admin response supplies resource and booking metrics. Ticket charts on the admin dashboard can use the agent stats request.
+- `bookingApi.js` uses `POST /bookings`, `GET /bookings/my`, `PATCH /bookings/:id/cancel`, `GET /bookings`, `PATCH /bookings/:id/approve`, and `PATCH /bookings/:id/reject`. The `/bookings/my` and `/bookings` responses are `{ bookings }` with full records. The admin response also includes requester summaries. Both views read details from their list responses. Admin filters and pagination run in the browser because the admin list endpoint returns all bookings.
+- `statsApi.js` (2) uses `GET /stats` and `GET /admin/stats`. The agent response feeds model agreement and the category and priority charts. The admin response provides resource totals, status counts, and top resources. Resource edits and booking changes invalidate cached admin analytics.
 - Ticket and resource lists return `{ tickets, pagination }` and `{ resources, pagination }`. Normalize per endpoint at the API boundary and account for Mongo `_id` fields when mapping rows.
 
 ## Optimistic ticket edits

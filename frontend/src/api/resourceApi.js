@@ -15,6 +15,13 @@ export async function getResource(id, signal) {
   return normalizeResource(data.resource)
 }
 
+export async function saveResource({ id, changes }) {
+  const { data } = id
+    ? await api.patch(`/resources/${encodeURIComponent(id)}`, changes)
+    : await api.post('/resources', changes)
+  return normalizeResource(data.resource)
+}
+
 export async function getResourceAvailability(id, day, signal) {
   const url = `/resources/${encodeURIComponent(id)}/availability`
   const responses = await Promise.all(availabilityUtcDates(day).map((date) => api.get(url, { params: { date }, signal })))

@@ -1,6 +1,7 @@
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
-import { getResource, getResourceAvailability, listResources } from '../api/resourceApi.js'
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { getResource, getResourceAvailability, listResources, saveResource } from '../api/resourceApi.js'
 import { localDayBounds } from '../utils/dateUtils.js'
+import { adminStatsKey } from './useStats.js'
 
 export const resourceKey = (id) => ['resources', 'detail', id]
 export const availabilityKey = (id) => ['resources', 'availability', id]
@@ -24,5 +25,18 @@ export function useResourceAvailability(id, date) {
     queryKey: [...availabilityKey(id), date, day?.start, day?.end],
     queryFn: ({ signal }) => getResourceAvailability(id, day, signal),
     enabled: Boolean(day),
+  })
+}
+
+export function useSaveResource() {
+  const client = useQueryClient()
+  return useMutation({
+    mutationFn: saveResource,
+    networkMode: 'always',
+    onSuccess: () => Promise.all([
+      client.invalidateQueries({ queryKey: ['resources'] }),
+      client.invalidateQueries({ queryKey: ['bookings'] }),
+      client.invalidateQueries({ queryKey: adminStatsKey }),
+    ]),
   })
 }

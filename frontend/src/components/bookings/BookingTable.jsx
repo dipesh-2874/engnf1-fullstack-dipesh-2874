@@ -5,10 +5,10 @@ import Button from '../common/Button.jsx'
 import StatusBadge from '../common/StatusBadge.jsx'
 import BookingCard from './BookingCard.jsx'
 
-export default function BookingTable({ bookings, onOpen }) {
+export default function BookingTable({ bookings, onOpen, label = 'Your bookings' }) {
   return (
     <>
-      <table className="booking-table" aria-label="Your bookings">
+      <table className="booking-table" aria-label={label}>
         <colgroup><col className="booking-resource-column" /><col /><col className="booking-purpose-column" /><col className="booking-status-column" /><col className="booking-actions-column" /></colgroup>
         <thead><tr><th scope="col">Resource</th><th scope="col">Date and time</th><th scope="col">Purpose</th><th scope="col">Status</th><th scope="col">Details</th></tr></thead>
         <tbody>
@@ -19,6 +19,7 @@ export default function BookingTable({ bookings, onOpen }) {
                 <th scope="row">
                   <p>{name}</p>
                   {booking.resource && <p className="scheduling-muted">{RESOURCE_TYPES[booking.resource.type]}</p>}
+                  {booking.requester && <p className="scheduling-muted">{booking.requester.name}</p>}
                 </th>
                 <td>{formatBookingRange(booking.startTime, booking.endTime)}</td>
                 <td><p className="booking-purpose-summary">{booking.purpose}</p></td>
@@ -33,7 +34,7 @@ export default function BookingTable({ bookings, onOpen }) {
           })}
         </tbody>
       </table>
-      <ul className="booking-cards" aria-label="Your bookings">
+      <ul className="booking-cards" aria-label={label}>
         {bookings.map((booking) => <BookingCard key={booking.id} booking={booking} onOpen={onOpen} />)}
       </ul>
     </>
