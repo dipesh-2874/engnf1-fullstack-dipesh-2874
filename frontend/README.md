@@ -1,10 +1,10 @@
 # TriageSync frontend
 
-This scaffold sets up the folder layout, dependencies, starter screen, and shared palette for the Section 6.5 frontend. The screens, route guards, and API integrations listed below are planned implementation files. Folders waiting for their first source file contain a `.gitkeep` marker.
+Phases 1 and 2 provide the frontend foundation, live authentication, and route guards. Workspace routes currently show a signed-in landing screen. The dashboard layout and feature screens are planned below. Folders waiting for their first source file contain a `.gitkeep` marker.
 
 ## Local setup
 
-Use Node.js 20.19+ on the 20.x line or Node.js 22.12+. From the repository root, set `VITE_API_BASE_URL` in the existing root `.env`, using `.env.example` as a reference. The example uses `http://localhost:5000/api`. Vite reads configuration from the repository root and exposes variables prefixed with `VITE_` to browser code. [Vite 7 environment variables](https://v7.vite.dev/guide/env-and-mode)
+Use Node.js 20.19+ on the 20.x line or Node.js 22.12+. Start the backend with `npm --prefix backend start`. The Axios client defaults to `http://localhost:5000/api`. To use another API origin, set `VITE_API_BASE_URL` in the root `.env`. Vite exposes variables prefixed with `VITE_` to browser code. [Vite 7 environment variables](https://v7.vite.dev/guide/env-and-mode)
 
 ```sh
 npm --prefix frontend ci
@@ -17,8 +17,8 @@ npm --prefix frontend run build
 
 - React 19 and React DOM render the application. Vite 7 and its React plugin provide development and production builds. ESLint checks JavaScript, JSX, and React Hooks.
 - Tailwind CSS 4 and its Vite plugin handle styling. `src/styles/globals.css` defines `#FBFBFB` (base), `#320B01` (highlight), `#004D3A` (accent), and `#121100` (text).
-- React Router DOM 7 will handle navigation, redirects, and route guards. [React Router 7 documentation](https://reactrouter.com/7.18.7/start/declarative/routing)
-- Axios 1 will centralize the API base URL, Bearer headers, and authenticated `401` handling. TanStack React Query 5 will handle caching, filtered queries, optimistic edits, and rollback. [TanStack Query optimistic updates](https://tanstack.com/query/v5/docs/framework/react/guides/optimistic-updates)
+- React Router DOM 7 handles navigation, redirects, and route guards. [React Router 7 documentation](https://reactrouter.com/7.18.7/start/declarative/routing)
+- Axios 1 centralizes the API base URL, Bearer headers, and authenticated `401` handling. TanStack React Query 5 loads the authenticated user and provides the cache for later filtered queries and optimistic edits. [TanStack Query optimistic updates](https://tanstack.com/query/v5/docs/framework/react/guides/optimistic-updates)
 - Recharts 3 and its React 19 peer `react-is` will render analytics. Lucide React provides icons and React Hot Toast provides mutation feedback.
 - React state handles dynamic filters, and native `Date` and `Intl` support UTC conversion and local time display.
 
@@ -73,7 +73,7 @@ frontend/
 
 ## Routes and page requirements
 
-- `/login` and `/register` are public. Route guards will redirect signed-in users to the workspace and unauthenticated users to login. An authenticated API request that returns `401` will clear the session and redirect to login. Login-form `401` responses will display the credential error on the form.
+- `/login` and `/register` are public. Registration creates a USER account and sends them to sign in. The JWT stays in tab-scoped session storage across reloads and `/auth/me` provides the role. After login, users return to the requested route or open `/tickets` (USER) or `/admin/dashboard` (ADMIN). An authenticated `401` clears the session and query cache. A login-form `401` displays the credential error on the form.
 - `/tickets` is available to USER and ADMIN. Show live statistics including Model Agreement Rate, combined status/category/priority filters, roughly 300 ms debounced search, and a feed re-import control. The detail panel shows the original and current categories, editable fields, and the audit timeline. Render subjects and bodies as React text.
 - `/resources` and `/resources/:id` are available to USER and ADMIN. Show live resource search, type and minimum capacity filters, and ten results per page. The detail view shows a complete local day and accepts a booking with a purpose and optional ticket link. Use 30-minute UTC-aligned steps, enforce a duration of 30–240 minutes and a future start within 30 days, and send ISO UTC timestamps. Show the server error and refresh availability after a `409`.
 - `/my-bookings` is available to USER and ADMIN. Show the current user's bookings, a status filter, and a cancellation confirmation.
