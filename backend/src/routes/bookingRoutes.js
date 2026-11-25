@@ -5,7 +5,8 @@ import {
   getMyBookings,
   getAllBookings,
   cancelBooking,
-  decideBooking,
+  approveBooking,
+  rejectBooking,
 } from "../controllers/bookingController.js";
 
 import {
@@ -18,13 +19,11 @@ const router = express.Router();
 router.use(protect);
 
 router.post("/", authorizeRoles("USER", "ADMIN"), createBooking);
-
 router.get("/my", authorizeRoles("USER", "ADMIN"), getMyBookings);
-
-router.get("/", authorizeRoles("ADMIN"), getAllBookings);
-
 router.patch("/:id/cancel", authorizeRoles("USER", "ADMIN"), cancelBooking);
 
-router.patch("/:id/decision", authorizeRoles("ADMIN"), decideBooking);
+router.get("/", authorizeRoles("ADMIN"), getAllBookings);
+router.patch("/:id/approve", authorizeRoles("ADMIN"), approveBooking);
+router.patch("/:id/reject", authorizeRoles("ADMIN"), rejectBooking);
 
 export default router;

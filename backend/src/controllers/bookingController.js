@@ -419,85 +419,123 @@ export const cancelBooking = async (req, res) => {
   }
 };
 
-export const decideBooking = async (req, res) => {
+
+// approve 
+export const approveBooking = async (req, res) => {
   try {
     const { id } = req.params;
-    const { status, decisionNote } = req.body ?? {};
 
     if (!isValidId(id)) {
       fail(400, "VALIDATION_ERROR", "Invalid booking ID");
     }
 
-    if (!["APPROVED", "REJECTED"].includes(status)) {
-      fail(
-        400,
-        "VALIDATION_ERROR",
-        "Decision must be APPROVED or REJECTED"
-      );
-    }
-
-    if (
-      status === "REJECTED" &&
-      (
-        typeof decisionNote !== "string" ||
-        decisionNote.trim().length < 5 ||
-        decisionNote.trim().length > 200
-      )
-    ) {
-      fail(
-        400,
-        "VALIDATION_ERROR",
-        "Rejection requires a 5–200 character note"
-      );
-    }
-
     const booking = await runTransaction(async (session) => {
-      const existing = await Booking.findById(id)
-        .session(session);
+      const existing = await Booking.findById(id).session(session);
 
       if (!existing) {
         fail(404, "NOT_FOUND", "Booking not found");
       }
 
-      if (existing.startTime <= new Date()) {
+      if (
+        existing.status !== "PENDING" ||
+        existing.startTime <= new Date()
+      ) {
         fail(
           409,
           "CONFLICT",
-          "Cannot modify a booking after its start time"
+          "Only future PENDING bookings can be approved"
         );
       }
 
-      if (existing.status !== "PENDING") {
-        fail(
-          409,
-          "CONFLICT",
-          "Only pending bookings can be decided"
-        );
-      }
-
-      // Update the resource lock after an admin changes its booking status.
-      const resourceLock = await Resource.updateOne(
+      // Coordinate with other booking operations
+      const lock = await Resource.updateOne(
         { _id: existing.resourceId },
         { $inc: { bookingVersion: 1 } },
         { session }
       );
 
-      if (resourceLock.matchedCount !== 1) {
-        fail(404, "NOT_FOUND", "Resource not found");
+      if (lock.matchedCount !== 1) {
+        fail(409, "CONFLICT", "Associated resource unavailable");
       }
 
-      existing.status = status;
-      existing.decisionNote =
-        status === "REJECTED"
-          ? decisionNote.trim()
-          : null;
+      existing.status = "APPROVED";
+      existing.decisionNote = null;
 
       await existing.save({ session });
+
       return existing;
     });
 
     return res.status(200).json({
-      message: `Booking ${status.toLowerCase()} successfully`,
+      booking,
+    });
+  } catch (error) {
+    return handleError(res, error);
+  }
+};
+
+//reject
+export const rejectBooking = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { note } = req.body ?? {};
+
+    if (!isValidId(id)) {
+      fail(400, "VALIDATION_ERROR", "Invalid booking ID");
+    }
+
+    // Assessment expects the request field "note"
+    if (
+      typeof note !== "string" ||
+      note.trim().length < 5 ||
+      note.trim().length > 200
+    ) {
+      fail(
+        400,
+        "VALIDATION_ERROR",
+        "Rejection note must be 5-200 characters"
+      );
+    }
+
+    const booking = await runTransaction(async (session) => {
+      const existing = await Booking.findById(id).session(session);
+
+      if (!existing) {
+        fail(404, "NOT_FOUND", "Booking not found");
+      }
+
+      if (
+        existing.status !== "PENDING" ||
+        existing.startTime <= new Date()
+      ) {
+        fail(
+          409,
+          "CONFLICT",
+          "Only future PENDING bookings can be rejected"
+        );
+      }
+
+      const lock = await Resource.updateOne(
+        { _id: existing.resourceId },
+        { $inc: { bookingVersion: 1 } },
+        { session }
+      );
+
+      if (lock.matchedCount !== 1) {
+        fail(409, "CONFLICT", "Associated resource unavailable");
+      }
+
+      existing.status = "REJECTED";
+
+      // Map API field "note" to the existing model field
+      existing.decisionNote = note.trim();
+
+      await existing.save({ session });
+
+      return existing;
+    });
+
+    return res.status(200).json({
       booking,
     });
   } catch (error) {
