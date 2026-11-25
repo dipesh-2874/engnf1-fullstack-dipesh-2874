@@ -8,3 +8,7 @@
 ## Frontend foundation and authentication
 
 - OpenAI Codex implemented the Axios and TanStack Query setup, responsive authentication screens, JWT session restoration, and role guards. The auth routes and controller were checked to confirm that registration returns a user and login returns a token. The frontend verifies the session and role through `/api/auth/me`.
+
+## Dashboard layout
+
+- OpenAI Codex used the supplied dashboard and responsive references to implement the shared sidebar, navbar, drawer, and UI components. The layout uses the authenticated user's profile and verified role to render navigation.

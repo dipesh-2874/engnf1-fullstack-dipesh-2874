@@ -1,6 +1,8 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
+import { administration, resourceDetails, workspace } from '../components/layout/navigation.js'
 import { useAuth } from '../hooks/useAuth.js'
 import AuthLayout from '../layouts/AuthLayout.jsx'
+import DashboardLayout from '../layouts/DashboardLayout.jsx'
 import Login from '../pages/auth/Login.jsx'
 import Register from '../pages/auth/Register.jsx'
 import WorkspaceLanding from '../pages/WorkspaceLanding.jsx'
@@ -26,17 +28,19 @@ export default function AppRoutes() {
       </Route>
 
       <Route element={<ProtectedRoute />}>
-        <Route index element={<WorkspaceRedirect />} />
-        <Route path="tickets" element={<WorkspaceLanding title="Triage Queue" />} />
-        <Route path="resources" element={<WorkspaceLanding title="Resources" />} />
-        <Route path="resources/:id" element={<WorkspaceLanding title="Resource details" />} />
-        <Route path="my-bookings" element={<WorkspaceLanding title="My Bookings" />} />
-        <Route path="403" element={<Forbidden />} />
-        <Route path="admin" element={<AdminRoute />}>
-          <Route index element={<Navigate to="dashboard" replace />} />
-          <Route path="dashboard" element={<WorkspaceLanding title="Analytics Dashboard" />} />
-          <Route path="resources" element={<WorkspaceLanding title="Manage Resources" />} />
-          <Route path="bookings" element={<WorkspaceLanding title="Manage Bookings" />} />
+        <Route element={<DashboardLayout />}>
+          <Route index element={<WorkspaceRedirect />} />
+          {workspace.links.map((page) => (
+            <Route key={page.to} path={page.to} element={<WorkspaceLanding page={page} />} />
+          ))}
+          <Route path={resourceDetails.to} element={<WorkspaceLanding page={resourceDetails} />} />
+          <Route path="403" element={<Forbidden />} />
+          <Route path="admin" element={<AdminRoute />}>
+            <Route index element={<Navigate to="dashboard" replace />} />
+            {administration.links.map((page) => (
+              <Route key={page.to} path={page.to} element={<WorkspaceLanding page={page} />} />
+            ))}
+          </Route>
         </Route>
       </Route>
 

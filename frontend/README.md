@@ -1,6 +1,6 @@
 # TriageSync frontend
 
-Phases 1 and 2 provide the frontend foundation, live authentication, and route guards. Workspace routes currently show a signed-in landing screen. The dashboard layout and feature screens are planned below. Folders waiting for their first source file contain a `.gitkeep` marker.
+Phases 1–3 provide the frontend foundation, live authentication, route guards, and dashboard shell. The sidebar uses the verified user role to show the right navigation links. The shell shows a mobile drawer below 768 px, an icon rail from 768 px, and a full sidebar from 1024 px. Feature routes currently show placeholders within the shell. Folders waiting for their first source file contain a `.gitkeep` marker.
 
 ## Local setup
 

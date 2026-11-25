@@ -1,0 +1,214 @@
+.dashboard-layout {
+  display: grid;
+  min-height: 100dvh;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.dashboard-skip-link {
+  position: fixed;
+  z-index: 3;
+  top: 0.5rem;
+  left: 0.5rem;
+  padding: 0.625rem 0.875rem;
+  transform: translateY(-150%);
+  border-radius: 0.5rem;
+  background: white;
+  color: var(--color-accent);
+  font-weight: 650;
+}
+
+.dashboard-skip-link:focus { transform: none; }
+
+.dashboard-sidebar {
+  position: sticky;
+  top: 0;
+  display: none;
+  height: 100dvh;
+  align-self: start;
+  background: var(--color-highlight);
+  color: var(--color-base);
+}
+
+.dashboard-sidebar-content {
+  display: flex;
+  height: 100%;
+  min-height: 0;
+  flex-direction: column;
+  padding: 1rem 0.875rem;
+}
+
+.dashboard-wordmark {
+  display: flex;
+  min-height: 3.25rem;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.375rem 0.5rem;
+  border-radius: 0.625rem;
+  font-size: 1.125rem;
+  font-weight: 750;
+  letter-spacing: -0.025em;
+}
+
+.dashboard-wordmark img { flex-shrink: 0; border: 1px solid #ffffff47; border-radius: 0.625rem; }
+
+.dashboard-navigation {
+  flex: 1;
+  overflow: auto;
+  margin-top: 1.5rem;
+  padding: 0.25rem 0.25rem 1rem;
+}
+
+.dashboard-nav-group + .dashboard-nav-group { margin-top: 1.5rem; }
+.dashboard-nav-group ul { display: grid; gap: 0.3rem; }
+.dashboard-nav-heading {
+  margin: 0 0 0.5rem 0.625rem;
+  color: #d8bcb0;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.dashboard-nav-link {
+  display: flex;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  border-radius: 0.625rem;
+  color: #f7e8e2;
+  font-size: 0.875rem;
+  font-weight: 570;
+}
+
+.dashboard-nav-link svg { flex-shrink: 0; color: #e5cbbf; }
+.dashboard-nav-link:hover { background: #ffffff12; }
+.dashboard-nav-link.active { background: #ffffff24; color: white; font-weight: 700; }
+.dashboard-nav-link.active svg { color: white; }
+.dashboard-sidebar :focus-visible, .dashboard-drawer :focus-visible { outline: 2px solid #bddfd2; outline-offset: 2px; }
+
+.dashboard-account {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.875rem 0.5rem 0.375rem;
+  border-top: 1px solid #ffffff26;
+}
+
+.dashboard-avatar {
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex-shrink: 0;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-accent);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 750;
+}
+
+.dashboard-account-copy { min-width: 0; font-size: 0.875rem; font-weight: 650; }
+.dashboard-account-copy p { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dashboard-account-copy p + p { color: #d8bcb0; font-size: 0.75rem; font-weight: 450; }
+
+.dashboard-main { min-width: 0; }
+
+.dashboard-navbar {
+  position: sticky;
+  z-index: 1;
+  top: 0;
+  display: flex;
+  min-height: 4rem;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.375rem 1rem;
+  background: var(--color-highlight);
+  color: var(--color-base);
+}
+
+.dashboard-navbar .dashboard-signout { flex-shrink: 0; }
+.dashboard-navbar .ui-button:hover { background: #ffffff1a; }
+.dashboard-navbar :focus-visible { outline-color: #bddfd2; }
+
+.dashboard-breadcrumb {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.dashboard-breadcrumb-section, .dashboard-breadcrumb-divider { display: none; }
+.dashboard-breadcrumb [aria-current='page'] {
+  overflow: hidden;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dashboard-content {
+  width: min(100%, 92rem);
+  min-width: 0;
+  margin-inline: auto;
+  padding: clamp(1.5rem, 3vw, 2.625rem) clamp(1rem, 2.6vw, 2.75rem);
+}
+
+.dashboard-page-heading { margin-bottom: 1.625rem; overflow-wrap: anywhere; }
+.dashboard-page-heading h1 { font-size: clamp(1.75rem, 3.25vw, 2.375rem); font-weight: 750; letter-spacing: -0.04em; line-height: 1.16; }
+.dashboard-page-heading p { margin-top: 0.5rem; color: #59574f; line-height: 1.6; }
+.dashboard-page-heading .ui-button { margin-top: 1.25rem; }
+
+.ui-dialog.dashboard-drawer {
+  inset: 0 auto 0 0;
+  width: min(19rem, calc(100% - 2.75rem));
+  height: 100dvh;
+  max-height: 100dvh;
+  margin: 0;
+  border: 0;
+  border-radius: 0 1rem 1rem 0;
+  background: var(--color-highlight);
+  color: var(--color-base);
+}
+
+.dashboard-drawer .ui-dialog-surface { display: flex; min-height: 100%; flex-direction: column; }
+.dashboard-drawer .ui-dialog-header { border-color: #ffffff26; }
+.dashboard-drawer .ui-dialog-header .ui-button:hover { background: #ffffff1a; }
+.dashboard-drawer .ui-dialog-body { display: grid; flex: 1; padding: 0; }
+.dashboard-drawer .dashboard-navigation { margin-top: 0; }
+
+@media (min-width: 768px) {
+  .dashboard-layout { grid-template-columns: 4.75rem minmax(0, 1fr); }
+  .dashboard-sidebar { display: block; }
+  .dashboard-navbar {
+    padding-inline: clamp(1.5rem, 2.6vw, 2.75rem);
+    border-bottom: 1px solid #e8e4dd;
+    background: white;
+    color: var(--color-ink);
+  }
+  .dashboard-navbar .dashboard-menu-trigger { display: none; }
+  .dashboard-navbar .ui-button:hover { background: #f0eee9; }
+  .dashboard-navbar :focus-visible { outline-color: var(--color-accent); }
+  .dashboard-breadcrumb-section, .dashboard-breadcrumb-divider { display: block; flex-shrink: 0; color: #665e56; }
+}
+
+@media (768px <= width < 1024px) {
+  .dashboard-sidebar .dashboard-sidebar-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .dashboard-sidebar .dashboard-sidebar-content { padding-inline: 0.625rem; }
+  .dashboard-sidebar .dashboard-wordmark,
+  .dashboard-sidebar .dashboard-nav-link,
+  .dashboard-sidebar .dashboard-account { justify-content: center; padding-inline: 0; }
+  .dashboard-sidebar .dashboard-nav-group + .dashboard-nav-group { padding-top: 0.75rem; border-top: 1px solid #ffffff26; }
+}
+
+@media (min-width: 1024px) {
+  .dashboard-layout { grid-template-columns: 14.75rem minmax(0, 1fr); }
+}
