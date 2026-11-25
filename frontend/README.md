@@ -1,6 +1,6 @@
 # TriageSync frontend
 
-Phases 1–3 provide the frontend foundation, live authentication, route guards, and dashboard shell. The sidebar uses the verified user role to show the right navigation links. The shell shows a mobile drawer below 768 px, an icon rail from 768 px, and a full sidebar from 1024 px. Feature routes currently show placeholders within the shell. Folders waiting for their first source file contain a `.gitkeep` marker.
+Phases 1–5 provide the frontend foundation, authentication, dashboard shell, Triage Queue, and Agent Review panel. The queue uses live backend data. Resource, booking, and admin feature pages are planned below. Folders waiting for their first source file contain a `.gitkeep` marker.
 
 ## Local setup
 
@@ -74,7 +74,7 @@ frontend/
 ## Routes and page requirements
 
 - `/login` and `/register` are public. Registration creates a USER account and sends them to sign in. The JWT stays in tab-scoped session storage across reloads and `/auth/me` provides the role. After login, users return to the requested route or open `/tickets` (USER) or `/admin/dashboard` (ADMIN). An authenticated `401` clears the session and query cache. A login-form `401` displays the credential error on the form.
-- `/tickets` is available to USER and ADMIN. Show live statistics including Model Agreement Rate, combined status/category/priority filters, roughly 300 ms debounced search, and a feed re-import control. The detail panel shows the original and current categories, editable fields, and the audit timeline. Render subjects and bodies as React text.
+- `/tickets` is available to USER and ADMIN. It shows live statistics including Model Agreement Rate, combined status/category/priority filters, a 300 ms debounced search, and ten tickets per page. Re-Import Feed accepts a JSON file or pasted JSON containing an array of ticket objects or a `{ tickets: [...] }` envelope. The detail panel renders subjects and bodies as text and shows the original and current categories, editable fields, and audit timeline.
 - `/resources` and `/resources/:id` are available to USER and ADMIN. Show live resource search, type and minimum capacity filters, and ten results per page. The detail view shows a complete local day and accepts a booking with a purpose and optional ticket link. Use 30-minute UTC-aligned steps, enforce a duration of 30–240 minutes and a future start within 30 days, and send ISO UTC timestamps. Show the server error and refresh availability after a `409`.
 - `/my-bookings` is available to USER and ADMIN. Show the current user's bookings, a status filter, and a cancellation confirmation.
 - `/admin/dashboard`, `/admin/resources`, and `/admin/bookings` are ADMIN-only. Show live analytics, create/edit/activate/deactivate resources, and filter, approve, or reject bookings. Require a rejection note.
@@ -85,7 +85,7 @@ frontend/
 The paths below are relative to `/api` and reflect the currently mounted application endpoints. Sections 6.5 and 7 of the brief describe the required UI and the assessment API contract.
 
 - `authApi.js` (3) uses `POST /auth/register`, `POST /auth/login`, and `GET /auth/me`.
-- `ticketApi.js` (5) uses `POST /tickets/import`, `GET /tickets`, `GET /tickets/:id`, `PATCH /tickets/:id`, and `GET /tickets/:id/events`. The backend import takes a raw JSON array and returns `imported` and `updated`. Ticket detail and update return `ticket`. Audit events come from the separate events route. The proposed import UI accepts an actual JSON feed, and assignment can use a known user ID. The API has no feed-fetching or user-directory route.
+- `ticketApi.js` (5) uses `POST /tickets/import`, `GET /tickets`, `GET /tickets/:id`, `PATCH /tickets/:id`, and `GET /tickets/:id/events`. The backend import takes a raw JSON array and returns `imported` and `updated`. Ticket detail and update return `ticket`. Audit events come from the separate events route. To assign a ticket, use Assign to me or enter a known user ID. An empty assignee field unassigns it.
 - `resourceApi.js` (5) uses `GET /resources`, `GET /resources/:id`, `POST /resources`, `PATCH /resources/:id`, and `GET /resources/:id/availability`. The collection expects search as `q`. Availability accepts `date=YYYY-MM-DD` and returns blocking intervals in `availability` for that UTC day. For a local calendar day, fetch each intersecting UTC date, combine duplicate intervals, and check overlaps against local slot bounds. Activation and deactivation use `PATCH` with `isActive`.
 - `bookingApi.js` (6) uses `POST /bookings`, `GET /bookings/my`, `GET /bookings`, and `PATCH /bookings/:id/cancel`, `/bookings/:id/approve`, and `/bookings/:id/reject`. The list responses are `{ bookings }`. `/bookings/my` supports status, and the admin list returns all bookings for client-side filtering. The brief specifies `/bookings/mine`, paginated lists, and a booking detail endpoint. The current router has no booking detail handler.
 - `statsApi.js` (2) uses `GET /stats` and `GET /admin/stats`. The agent response uses `reviewedTickets`, `categoryDistribution`, `priorityDistribution`, and `statusDistribution`. The admin response supplies resource and booking metrics. Ticket charts on the admin dashboard can use the agent stats request.
@@ -93,4 +93,4 @@ The paths below are relative to `/api` and reflect the currently mounted applica
 
 ## Optimistic ticket edits
 
-In `onMutate`, cancel relevant queries, snapshot cached detail and list data, and apply the edit immediately. Send the PATCH in `mutationFn`. On failure, restore the snapshots and show the server message. On success, reconcile the returned ticket and refresh its audit events. On settlement, invalidate ticket queries and statistics so filtered results and counts reflect server state.
+In `onMutate`, the app cancels relevant fetches, snapshots the ticket detail and matching list rows, and applies the edit immediately. A failed PATCH restores the snapshots, shows a rollback toast, and displays the server message in the panel. A successful PATCH reconciles the returned ticket and refreshes its audit events. Both outcomes refresh ticket queries and statistics so filtered results and counts reflect server state.

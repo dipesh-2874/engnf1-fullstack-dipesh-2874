@@ -5,6 +5,7 @@ import AuthLayout from '../layouts/AuthLayout.jsx'
 import DashboardLayout from '../layouts/DashboardLayout.jsx'
 import Login from '../pages/auth/Login.jsx'
 import Register from '../pages/auth/Register.jsx'
+import TriageQueue from '../pages/tickets/TriageQueue.jsx'
 import WorkspaceLanding from '../pages/WorkspaceLanding.jsx'
 import Forbidden from '../pages/Forbidden.jsx'
 import NotFound from '../pages/NotFound.jsx'
@@ -31,7 +32,7 @@ export default function AppRoutes() {
         <Route element={<DashboardLayout />}>
           <Route index element={<WorkspaceRedirect />} />
           {workspace.links.map((page) => (
-            <Route key={page.to} path={page.to} element={<WorkspaceLanding page={page} />} />
+            <Route key={page.to} path={page.to} element={page.to === '/tickets' ? <TriageQueue /> : <WorkspaceLanding page={page} />} />
           ))}
           <Route path={resourceDetails.to} element={<WorkspaceLanding page={resourceDetails} />} />
           <Route path="403" element={<Forbidden />} />

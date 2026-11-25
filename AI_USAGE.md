@@ -12,3 +12,7 @@
 ## Dashboard layout
 
 - OpenAI Codex used the supplied dashboard and responsive references to implement the shared sidebar, navbar, drawer, and UI components. The layout uses the authenticated user's profile and verified role to render navigation.
+
+## Triage Queue and Agent Review
+
+- OpenAI Codex implemented the live queue, feed import, ticket review, and audit timeline. The implementation was checked against the actual backend controller because the brief combines ticket data and history and wraps the import feed. The backend provides a separate events endpoint and receives a raw array.
