@@ -111,25 +111,26 @@ export const importTickets = async (req, res) => {
       const { externalId, subject, body } = item;
 
       const existing = await Ticket.findOne({ externalId });
+      if (existing?.isHumanOverride) {
+        await Ticket.updateOne({ _id: existing._id }, { $set: { subject, body } });
+        updated++;
+        continue;
+      }
+      const classification = classifyTicket(subject, body);
 
       if (existing) {
-        existing.subject = subject;
-        existing.body = body;
+        const content = { subject, body };
+        const refreshed = await Ticket.updateOne(
+          { _id: existing._id, isHumanOverride: { $ne: true } },
+          { $set: { ...content, category: classification.category, priority: classification.priority } }
+        );
 
-        // Reclassify only when no human override exists
-        if (!existing.isHumanOverride) {
-          const classification = classifyTicket(subject, body);
-
-          existing.autoCategory = classification.category;
-          existing.category = classification.category;
-          existing.priority = classification.priority;
+        // An agent can set the override between the initial lookup and this write.
+        if (refreshed.matchedCount === 0) {
+          await Ticket.updateOne({ _id: existing._id }, { $set: content });
         }
-
-        await existing.save();
         updated++;
       } else {
-        const classification = classifyTicket(subject, body);
-
         const ticket = await Ticket.create({
           externalId,
           subject,

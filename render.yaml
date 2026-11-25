@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: triagesync-dipesh-2874
+    runtime: node
+    plan: free
+    branch: main
+    buildCommand: npm --prefix backend ci --omit=dev && npm --prefix frontend ci --include=dev && npm --prefix frontend run build
+    startCommand: npm --prefix backend start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: 22.18.0
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: SERVE_FRONTEND
+        value: "true"
+      - key: VITE_API_BASE_URL
+        value: /api

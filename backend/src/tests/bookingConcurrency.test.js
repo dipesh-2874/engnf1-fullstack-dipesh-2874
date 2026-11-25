@@ -1,5 +1,5 @@
 
-const BASE_URL = "http://localhost:5000";
+const BASE_URL = (process.env.TEST_API_BASE_URL || "http://localhost:5000").replace(/\/$/, "");
 
 const token = process.env.TEST_TOKEN;
 const resourceId = process.env.TEST_RESOURCE_ID;

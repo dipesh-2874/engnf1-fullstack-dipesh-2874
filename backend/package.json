@@ -4,9 +4,11 @@
   "description": "",
   "main": "src/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node src/scripts/testClassifier.js",
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
+    "seed": "npm run seed:users && npm run seed:resources && npm run seed:tickets",
+    "test:booking-race": "node src/tests/bookingConcurrency.test.js",
     "seed:users": "node src/scripts/seedUsers.js",
     "seed:tickets": "node src/scripts/seedTickets.js",
     "seed:resources": "node src/scripts/seedResources.js"

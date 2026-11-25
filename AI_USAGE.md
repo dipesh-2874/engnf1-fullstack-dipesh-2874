@@ -24,3 +24,9 @@
 ## Admin views
 
 - OpenAI Codex implemented resource administration, booking decisions, and analytics charts. The Express controllers were checked to confirm that the admin list returns all bookings and that the admin statistics response supplies booking and resource metrics. The admin dashboard also requests ticket metrics from the agent stats endpoint.
+
+## Final testing, deployment preparation, and documentation
+
+- OpenAI Codex prepared the same-origin production build and Render Blueprint, added the missing demo fixtures, and wrote the root README and solution notes. It ran browser and API checks against isolated Atlas data and measured ticket-list performance before and after adding the queue sort index.
+- Verification example. The sort index was evaluated with the same 5,000 tickets and 30 measured requests per condition. The list query examined fewer documents and median latency improved. The p95 was higher in that run, so the write-up reports the measured trade-off without claiming a uniform speedup.
+- The final re-import review checked that the override is tested at write time. The implementation preserves the original category and keeps a concurrent agent decision intact. The test data and temporary verification databases were removed after the runs.

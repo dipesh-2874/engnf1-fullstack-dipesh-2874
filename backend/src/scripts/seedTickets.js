@@ -148,6 +148,37 @@ const tickets = [
     priority: "LOW",
     status: "CLOSED",
   },
+  {
+    externalId: "TKT-016",
+    subject: "Markup report: <script></script>",
+    body: "The editor showed <strong>literal markup</strong> in the saved report.",
+    autoCategory: "BUG",
+    category: "BUG",
+    priority: "MEDIUM",
+    status: "RESOLVED",
+    isReviewed: true,
+  },
+  {
+    externalId: "TKT-017",
+    subject: "Invoice request routed to delivery",
+    body: "The agent confirmed this was a delivery paperwork request.",
+    autoCategory: "BILLING",
+    category: "DELIVERY",
+    priority: "MEDIUM",
+    status: "IN_PROGRESS",
+    isReviewed: true,
+    isHumanOverride: true,
+  },
+  {
+    externalId: "TKT-018",
+    subject: "Login issue confirmed",
+    body: "The agent reset the account and verified the login works.",
+    autoCategory: "LOGIN",
+    category: "LOGIN",
+    priority: "LOW",
+    status: "CLOSED",
+    isReviewed: true,
+  },
 ];
 
 async function seedTickets() {
@@ -167,10 +198,10 @@ async function seedTickets() {
         filter: { externalId: ticket.externalId },
         update: {
           $setOnInsert: {
-            ...ticket,
             isHumanOverride: false,
             isReviewed: false,
             assigneeId: null,
+            ...ticket,
           },
         },
         upsert: true,
