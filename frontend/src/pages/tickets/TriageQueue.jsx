@@ -1,5 +1,6 @@
 import { RefreshCw } from 'lucide-react'
 import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import Button from '../../components/common/Button.jsx'
 import EmptyState from '../../components/common/EmptyState.jsx'
 import ErrorState from '../../components/common/ErrorState.jsx'
@@ -79,13 +80,21 @@ export default function TriageQueue() {
   const [search, setSearch] = useState('')
   const [filters, setFilters] = useState(emptyFilters)
   const [importOpen, setImportOpen] = useState(false)
-  const [selectedTicketId, setSelectedTicketId] = useState(null)
+  const [routeParams, setRouteParams] = useSearchParams()
+  const selectedTicketId = routeParams.get('ticketId')
   const q = useDebounce(search.trim())
   const params = Object.fromEntries(Object.entries({ ...filters, q }).filter(([, value]) => value))
 
   function resetFilters() {
     setSearch('')
     setFilters(emptyFilters)
+  }
+
+  function selectTicket(id) {
+    const updated = new URLSearchParams(routeParams)
+    if (id) updated.set('ticketId', id)
+    else updated.delete('ticketId')
+    setRouteParams(updated, { replace: true })
   }
 
   return (
@@ -110,10 +119,10 @@ export default function TriageQueue() {
         filters={params}
         searchPending={q !== search.trim()}
         onReset={resetFilters}
-        onOpen={setSelectedTicketId}
+        onOpen={selectTicket}
       />
       <ImportFeedModal open={importOpen} onClose={() => setImportOpen(false)} />
-      <TicketDetailPanel ticketId={selectedTicketId} onClose={() => setSelectedTicketId(null)} />
+      <TicketDetailPanel ticketId={selectedTicketId} onClose={() => selectTicket(null)} />
     </div>
   )
 }

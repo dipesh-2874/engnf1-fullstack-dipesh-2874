@@ -16,3 +16,7 @@
 ## Triage Queue and Agent Review
 
 - OpenAI Codex implemented the live queue, feed import, ticket review, and audit timeline. The implementation was checked against the actual backend controller because the brief combines ticket data and history and wraps the import feed. The backend provides a separate events endpoint and receives a raw array.
+
+## Resources and My Bookings
+
+- OpenAI Codex implemented the resource catalog, local availability grid, booking form, and owner bookings and cancellation flows. The controller was checked for UTC half-hour alignment and daily availability coverage. The booking detail dialog uses the full records returned by the owner list endpoint.
