@@ -9,7 +9,7 @@ TriageSync combines a support-ticket triage queue with shared resource schedulin
 - **Public HTTPS demo** — Pending a hosting account connection. The repository includes a [Render Blueprint](render.yaml) for one Node service serving both the built React app and the API.
 - **Local frontend** — `http://localhost:5173` in development.
 - **Local API** — `http://localhost:5000/api`. The production-mode server also serves the UI at its root.
-- **Frontend Live Link** — [TriageSync](engnf1-fullstack-dipesh-2874-jt68kcadi.vercel.app).
+- **Frontend Live Link** — [TriageSync](engnf1-fullstack-dipesh-2874.vercel.app).
 - **Backend Live Link** — [TriageSync Backend](https://engnf1-fullstack-dipesh-2874.onrender.com).
 - **Source** — [GitHub repository](https://github.com/dipesh-2874/engnf1-fullstack-dipesh-2874).
 
