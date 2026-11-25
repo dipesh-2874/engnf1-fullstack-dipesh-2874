@@ -5,6 +5,7 @@ import {
     getResourceById,
     createResource,
     updateResource,
+    getResourceAvailability,
 } from "../controllers/resourceController.js";
 
 import {
@@ -17,6 +18,8 @@ const router = express.Router();
 router.get("/", protect, getResources);
 
 router.get("/:id", protect, getResourceById);
+
+router.get("/:id/availability", protect, getResourceAvailability);
 
 //admin only
 router.post("/", protect, authorizeRoles("ADMIN"), createResource);

@@ -1,6 +1,7 @@
 
 import mongoose from "mongoose";
 import Resource from "../models/Resource.js";
+import Booking from "../models/Booking.js";
 
 const RESOURCE_TYPES = ["ROOM", "LAB", "EQUIPMENT"];
 
@@ -437,6 +438,103 @@ export const updateResource = async (req, res) => {
       500,
       "INTERNAL_ERROR",
       "Failed to update resource"
+    );
+  }
+};
+
+// check availibility
+export const getResourceAvailability = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { date } = req.query;
+
+    // Validate resource ID
+    if (!mongoose.isValidObjectId(id)) {
+      return sendError(
+        res,
+        400,
+        "VALIDATION_ERROR",
+        "Invalid resource ID"
+      );
+    }
+
+    // Validate date format
+    if (
+      typeof date !== "string" ||
+      !/^\d{4}-\d{2}-\d{2}$/.test(date)
+    ) {
+      return sendError(
+        res,
+        400,
+        "VALIDATION_ERROR",
+        "Date must use YYYY-MM-DD format"
+      );
+    }
+
+    const dayStart = new Date(`${date}T00:00:00.000Z`);
+
+    if (
+      Number.isNaN(dayStart.getTime()) ||
+      dayStart.toISOString().slice(0, 10) !== date
+    ) {
+      return sendError(
+        res,
+        400,
+        "VALIDATION_ERROR",
+        "Invalid calendar date"
+      );
+    }
+
+    const dayEnd = new Date(
+      dayStart.getTime() + 24 * 60 * 60 * 1000
+    );
+
+    // Verify resource exists
+    const resource = await Resource.findById(id)
+      .select("_id")
+      .lean();
+
+    if (!resource) {
+      return sendError(
+        res,
+        404,
+        "NOT_FOUND",
+        "Resource not found"
+      );
+    }
+
+    // Find bookings overlapping the selected UTC day
+    const bookings = await Booking.find({
+      resourceId: id,
+
+      status: {
+        $in: ["PENDING", "APPROVED"],
+      },
+
+      startTime: {
+        $lt: dayEnd,
+      },
+
+      endTime: {
+        $gt: dayStart,
+      },
+    })
+      .select("startTime endTime status -_id")
+      .sort({ startTime: 1 })
+      .lean();
+
+    return res.status(200).json({
+      date,
+      availability: bookings,
+    });
+  } catch (error) {
+    console.error("Resource availability error:", error);
+
+    return sendError(
+      res,
+      500,
+      "INTERNAL_ERROR",
+      "Failed to fetch resource availability"
     );
   }
 };
